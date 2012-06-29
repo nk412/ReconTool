@@ -71,9 +71,9 @@ for x=1:gridmax_x
         temp=1;
         temp2=0;
         for tt=1:neurons
-            start_spike=findnearest(time-round(window/2),spikes{tt},1);
+            start_spike=findnearest(time-round(window/2),spikes{tt});
             start_spike=start_spike(1);
-            end_spike=findnearest(time+round(window/2),spikes{tt},-1);
+            end_spike=findnearest(time+round(window/2),spikes{tt});
             end_spike=end_spike(1);
             temp=temp*power(firingrates{tt}(x,y),end_spike-start_spike+1);
             temp2=temp2+firingrates{tt}(x,y);
@@ -82,7 +82,7 @@ for x=1:gridmax_x
         temp2=exp(temp2);
         prob_dist(x,y)=prob_dist(x,y)*temp*temp2;
     end
-    %fprintf('%d/%d\n',x,gridmax_x);
+    fprintf('%d/%d\n',x,gridmax_x);
 end
 
 for looptemp=1:1
@@ -102,8 +102,8 @@ for x=1:gridmax_x
 end
 x=x*binsize_grid;
 y=y*binsize_grid;
-% fprintf('Estimated (x,y) #%d: (%d,%d)\n',looptemp,x,y);
-% prob_dist(x/2,y/2)=0;
+ fprintf('Estimated (x,y) #%d: (%d,%d)\n',looptemp,x,y);
+ prob_dist(x/2,y/2)=0;
 end
 
 
