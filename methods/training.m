@@ -68,7 +68,7 @@ startpoint=findnearest(startpoint,position_data(:,1));
 endpoint=findnearest(endpoint,position_data(:,1));
 posdata=position_data(startpoint:endpoint,:);
 %binsize_time=1; % in seconds (default 1 second)
-grid_factor=1.1;  % grid zoom factor (default 1x)
+grid_factor=1.0;  % grid zoom factor (default 1x)
 ignore_orig=1;  % Set to 1, to ignore all (0,0) points
 max_x=max(position_data(:,2));
 max_y=max(position_data(:,3));
@@ -79,7 +79,7 @@ gridmax_y=round(max_y*grid_factor/binsize_grid);
 
 %=============== SPATIAL OCCUPANCY ===================%
 fprintf('Calculating Spatial Occupancy...\n');
-spatial_occ=zeros(gridmax_x,gridmax_y);
+spatial_occ=zeros(gridmax_x+1,gridmax_y+1);
 for x=1:size(posdata)
     xx=posdata(x,2)+1;
     yy=posdata(x,3)+1;
@@ -117,8 +117,8 @@ for x=1:neurons
         if(index<startpoint || index>endpoint)
            continue;
         end
-        xx=posdata(index,2)+1;
-        yy=posdata(index,3)+1;
+        xx=posdata(index,2);
+        yy=posdata(index,3);
         if(ignore_orig==1)
             if(xx==1 && yy==1)
                 continue;
