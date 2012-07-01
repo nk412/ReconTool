@@ -52,7 +52,7 @@ function [ model_params ] = traindata( position_data, spikes, binsize_grid, star
 if(nargin<2)
     error('Need atleast position data and spiking information');
 elseif(nargin<3)
-    binsize_grid=1; %1cm default;
+    binsize_grid=[64,64]; % 64x64 default;
     startpoint=min(position_data(:,1));
     endpoint=max(position_data(:,1));
 elseif(nargin<4)
@@ -62,34 +62,49 @@ elseif(nargin<5)
     endpoint=max(position_data(:,1));
 end
 
-%startpoint=35818012;
-%endpoint=41067684;
+
+max_x=max(position_data(:,2));
+max_y=max(position_data(:,3));
+n_grid=binsize_grid(1)-1;
+m_grid=binsize_grid(2)-1;
+m_grid=max_x/m_grid;
+n_grid=max_y/n_grid;
+
+binsize_grid
+
+
+for x=1:numel(position_data(:,1))
+    position_data(x,2)=round(position_data(x,2)/m_grid) + 1;
+    position_data(x,3)=round(position_data(x,3)/n_grid) + 1;
+end
+
+max_x=max(position_data(:,2));
+max_y=max(position_data(:,3));
+
+
 startpoint=findnearest(startpoint,position_data(:,1));
 endpoint=findnearest(endpoint,position_data(:,1));
 posdata=position_data(startpoint:endpoint,:);
-%binsize_time=1; % in seconds (default 1 second)
 grid_factor=1.0;  % grid zoom factor (default 1x)
 ignore_orig=1;  % Set to 1, to ignore all (0,0) points
-max_x=max(position_data(:,2));
-max_y=max(position_data(:,3));
 del_t=333;
 
-gridmax_x=round(max_x*grid_factor/binsize_grid);
-gridmax_y=round(max_y*grid_factor/binsize_grid);
+gridmax_x=max_x;
+gridmax_y=max_y;
 
 %=============== SPATIAL OCCUPANCY ===================%
 fprintf('Calculating Spatial Occupancy...\n');
-spatial_occ=zeros(gridmax_x+1,gridmax_y+1);
+spatial_occ=zeros(gridmax_x,gridmax_y);
 for x=1:size(posdata)
-    xx=posdata(x,2)+1;
-    yy=posdata(x,3)+1;
+    xx=posdata(x,2);
+    yy=posdata(x,3);
     if(ignore_orig==1)
         if(xx==1 && yy==1)
             continue;
         end
     end
-    xx=floor(xx/binsize_grid);
-    yy=floor(yy/binsize_grid);
+    xx=floor(xx);
+    yy=floor(yy);
     if(xx==0)
         xx=1;
     end
@@ -124,8 +139,8 @@ for x=1:neurons
                 continue;
             end
         end
-        xx=floor(xx/binsize_grid);
-        yy=floor(yy/binsize_grid);
+        xx=floor(xx);
+        yy=floor(yy);
         if(xx==0)
             xx=1;
         end
@@ -151,40 +166,14 @@ end
 
 
 
-params=[neurons; binsize_grid; startpoint; endpoint; gridmax_x; gridmax_y];
+params=[neurons; 0; startpoint; endpoint; gridmax_x; gridmax_y];
+%params=[neurons; binsize_grid; startpoint; endpoint; gridmax_x; gridmax_y];
+
 model_params={params occupancy_matrix spatial_occ firingrates};
 
         
     
 
-% %-----cleanup-----%
-% clear binsize_grid;
-% clear binsize_time;
-% clear grid_factor;
-% clear ignore_orig;
-% clear max_x;
-% clear max_y;
-% clear gridmax_x;
-% clear gridmax_y;
-% clear xx;
-% clear yy;
-% clear x;
-% clear n;
-% clear total_positions;
-% clear del_t;
-% clear frate;
-% clear spikes;
-% clear neurons;
-% clear startpoint;
-% clear endpoint;
-% clear occupancy_matrix;
-% clear spatial_occ;
-% clear firingrates;
-% clear params;
-% clear timestamp;
-% clear y;
-% clear posdata;
-% clear index;
 
 
 
