@@ -47,22 +47,21 @@ elseif(nargin<6)
     window=1;
 end
 
+
+
 binsize_grid=model_params{2};
 
-
-max_x=max(position_data(:,2));
-max_y=max(position_data(:,3));
-n_grid=binsize_grid(1)-1;
-m_grid=binsize_grid(2)-1;
-m_grid=max_x/m_grid;
-n_grid=max_y/n_grid;
-
+max_x=max(position_data(:,2));  % get max X value
+max_y=max(position_data(:,3));  % get max Y value
+n_grid=binsize_grid(1);       % horizontal divisions, n
+m_grid=binsize_grid(2);       % vertical divisions, m
+m_grid=max_x/m_grid;            % bin width
+n_grid=max_y/n_grid;            % bin height
 
 for x=1:numel(position_data(:,1))
-    position_data(x,2)=round(position_data(x,2)/m_grid) + 1;
-    position_data(x,3)=round(position_data(x,3)/n_grid) + 1;
+    position_data(x,2)=round(position_data(x,2)/m_grid) ;
+    position_data(x,3)=round(position_data(x,3)/n_grid);
 end
-
 max_x=max(position_data(:,2));
 max_y=max(position_data(:,3));
 
@@ -70,17 +69,16 @@ max_y=max(position_data(:,3));
 estpos=[];
 
 time=startpoint;
-window=window*10000; %unit conversion
+window=window*10000; %unit conversion from seconds to 1/10000th of a second
 neurons=model_params{1}(1);
-gridmax_x=model_params{1}(5);
-gridmax_y=model_params{1}(6);
+gridmax_x=model_params{1}(2);
+gridmax_y=model_params{1}(3);
+timestep=model_params{1}(4); % Timestep, algorithm specific. will resolve this.
 spatial_occ=model_params{3};
 firingrates=model_params{4};
-tstep=333; % Timestep, algorithm specific. will resolve this.
 
 while(time<=endpoint)
     
-%window=2; %in seconds;
 
 
 prob_dist=zeros(gridmax_x,gridmax_y);
@@ -101,7 +99,7 @@ for x=1:gridmax_x
         temp2=exp(temp2);
         prob_dist(x,y)=prob_dist(x,y)*temp*temp2;
     end
-    fprintf('%d/%d\n',x,gridmax_x);
+    %fprintf('%d/%d\n',x,gridmax_x);
 end
 
 for looptemp=1:1
@@ -119,10 +117,7 @@ for x=1:gridmax_x
         break;
     end
 end
-x=x*binsize_grid;
-y=y*binsize_grid;
  fprintf('Estimated (x,y) #%d: (%d,%d)\n',looptemp,x,y);
- %prob_dist(x/2,y/2)=0;
 end
 
 
@@ -135,7 +130,7 @@ truey=position_data(truey,3);
 % fprintf('True Pos  (x,y) : (%d,%d)\n',truex,truey);
 estpos=[estpos;x,y,truex,truey];
    
-time=time+tstep;
+time=time+timestep;
 end
             
         
