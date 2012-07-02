@@ -1,4 +1,4 @@
-function [ model_params ] = traindata( position_data, spikes, binsize_grid, startpoint, endpoint )
+function [ model_params ] = traindata( position_data, spikes, binsize_grid, intervals )
 %TRAINDATA Summary of this function goes here
 %  traindata() builds a model from the given dataset with the specified
 %  constraints
@@ -53,40 +53,38 @@ if(nargin<2)
     error('Need atleast position data and spiking information');
 elseif(nargin<3)
     binsize_grid=[64,64]; % 64x64 default;
-    startpoint=min(position_data(:,1));
-    endpoint=max(position_data(:,1));
+    intervals=[min(position_data(:,1)),max(position_data(:,1))];
 elseif(nargin<4)
-    startpoint=min(position_data(:,1));
-    endpoint=max(position_data(:,1));
-elseif(nargin<5)
-    endpoint=max(position_data(:,1));
+    intervals=[min(position_data(:,1)),max(position_data(:,1))];
 end
 
 
-max_x=max(position_data(:,2));
-max_y=max(position_data(:,3));
-n_grid=binsize_grid(1)-1;
-m_grid=binsize_grid(2)-1;
-m_grid=max_x/m_grid;
-n_grid=max_y/n_grid;
-
-binsize_grid
+max_x=max(position_data(:,2));  % get max X value
+max_y=max(position_data(:,3));  % get max Y value
+n_grid=binsize_grid(1);       % horizontal divisions, n
+m_grid=binsize_grid(2);       % vertical divisions, m
+m_grid=max_x/m_grid;            % bin width
+n_grid=max_y/n_grid;            % bin height
 
 
 for x=1:numel(position_data(:,1))
-    position_data(x,2)=round(position_data(x,2)/m_grid) + 1;
-    position_data(x,3)=round(position_data(x,3)/n_grid) + 1;
+    position_data(x,2)=round(position_data(x,2)/m_grid) ;
+    position_data(x,3)=round(position_data(x,3)/n_grid);
 end
 
 max_x=max(position_data(:,2));
 max_y=max(position_data(:,3));
 
+posdata=[];
+for tempx=1:numel(intervals(:,1))
+    startpoint=findnearest(intervals(tempx,1),position_data(:,1));
+    endpoint=findnearest(intervals(tempx,2),position_data(:,1));
+    posdata=[posdata;position_data(startpoint:endpoint,:)];
+end
 
-startpoint=findnearest(startpoint,position_data(:,1));
-endpoint=findnearest(endpoint,position_data(:,1));
-posdata=position_data(startpoint:endpoint,:);
-grid_factor=1.0;  % grid zoom factor (default 1x)
+
 ignore_orig=1;  % Set to 1, to ignore all (0,0) points
+
 del_t=333;
 
 gridmax_x=max_x;
@@ -169,7 +167,9 @@ end
 params=[neurons; 0; startpoint; endpoint; gridmax_x; gridmax_y];
 %params=[neurons; binsize_grid; startpoint; endpoint; gridmax_x; gridmax_y];
 
-model_params={params occupancy_matrix spatial_occ firingrates};
+%model_params={params occupancy_matrix spatial_occ firingrates};
+model_params={params binsize_grid spatial_occ firingrates};
+
 
         
     

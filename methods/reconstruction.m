@@ -47,7 +47,26 @@ elseif(nargin<6)
     window=1;
 end
 
-binsize_grid=model_params{1}(2);
+binsize_grid=model_params{2};
+
+
+max_x=max(position_data(:,2));
+max_y=max(position_data(:,3));
+n_grid=binsize_grid(1)-1;
+m_grid=binsize_grid(2)-1;
+m_grid=max_x/m_grid;
+n_grid=max_y/n_grid;
+
+
+for x=1:numel(position_data(:,1))
+    position_data(x,2)=round(position_data(x,2)/m_grid) + 1;
+    position_data(x,3)=round(position_data(x,3)/n_grid) + 1;
+end
+
+max_x=max(position_data(:,2));
+max_y=max(position_data(:,3));
+
+
 estpos=[];
 
 time=startpoint;
@@ -103,7 +122,7 @@ end
 x=x*binsize_grid;
 y=y*binsize_grid;
  fprintf('Estimated (x,y) #%d: (%d,%d)\n',looptemp,x,y);
- prob_dist(x/2,y/2)=0;
+ %prob_dist(x/2,y/2)=0;
 end
 
 
