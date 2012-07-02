@@ -66,12 +66,10 @@ m_grid=binsize_grid(2);       % vertical divisions, m
 m_grid=max_x/m_grid;            % bin width
 n_grid=max_y/n_grid;            % bin height
 
-
 for x=1:numel(position_data(:,1))
     position_data(x,2)=round(position_data(x,2)/m_grid) ;
     position_data(x,3)=round(position_data(x,3)/n_grid);
 end
-
 max_x=max(position_data(:,2));
 max_y=max(position_data(:,3));
 
@@ -85,7 +83,12 @@ end
 
 ignore_orig=1;  % Set to 1, to ignore all (0,0) points
 
-del_t=333;
+tempy=[];
+for tempx=2:numel(posdata(:,1))
+    tempy=[tempy;posdata(tempx,1)-posdata(tempx-1,1)];
+end
+del_t=round(mean(tempy));
+
 
 gridmax_x=max_x;
 gridmax_y=max_y;
@@ -164,21 +167,10 @@ end
 
 
 
-params=[neurons; 0; startpoint; endpoint; gridmax_x; gridmax_y];
+params=[neurons; gridmax_x; gridmax_y; del_t];
 %params=[neurons; binsize_grid; startpoint; endpoint; gridmax_x; gridmax_y];
 
 %model_params={params occupancy_matrix spatial_occ firingrates};
-model_params={params binsize_grid spatial_occ firingrates};
-
-
-        
-    
-
-
-
-
-
-
-
+model_params={params binsize_grid spatial_occ firingrates intervals};
 end
 
