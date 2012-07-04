@@ -6,10 +6,10 @@ if(nargin<1)
     error('Call function with parameter model.');
 end
 if(nargin==1)
-    checker=1;
+    checker=0;
 end
 
-spatial_occupancy=model_params{2};
+spatial_occupancy=model_params{3};
 map=rot90(spatial_occupancy);
 if(checker==1)
     pcolor(map);

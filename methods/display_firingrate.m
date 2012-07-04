@@ -7,7 +7,7 @@ if(nargin<2)
 end
 
 if(nargin==2)
-    checker=1;
+    checker=0;
 end
 
 maxneurons=model_params{1}(1);

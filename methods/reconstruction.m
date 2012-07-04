@@ -1,4 +1,4 @@
-function [ estpos ] = reconstruct( position_data, spikes, model_params, startpoint, endpoint, window )
+function [ final_out ] = reconstruction( position_data, spikes, model_params, intervals, window )
 %RECONSTRUCT Summary of this function goes here
 %   The reconstruct function uses a model to reconstruct the location of
 %   the animal given the spiking activity of a set of neurons. The
@@ -41,16 +41,15 @@ function [ estpos ] = reconstruct( position_data, spikes, model_params, startpoi
 %   the true position (x and y) of the animal, as fetched from
 %   position_data.
 
-if(nargin<5)
+if(nargin<4)
     error('Argumements : Position data, spikes, model parameters, start point in time, end point, (time window)');
-elseif(nargin<6)
+elseif(nargin<5)
     window=1;
 end
 
 
-
+%------------Discretizing Position data into bins------------%
 binsize_grid=model_params{2};
-
 max_x=max(position_data(:,2));  % get max X value
 max_y=max(position_data(:,3));  % get max Y value
 n_grid=binsize_grid(1);       % horizontal divisions, n
@@ -66,9 +65,8 @@ max_x=max(position_data(:,2));
 max_y=max(position_data(:,3));
 
 
+%----------------variable initialization---------------------%
 estpos=[];
-
-time=startpoint;
 window=window*10000; %unit conversion from seconds to 1/10000th of a second
 neurons=model_params{1}(1);
 gridmax_x=model_params{1}(2);
@@ -76,48 +74,52 @@ gridmax_y=model_params{1}(3);
 timestep=model_params{1}(4); % Timestep, algorithm specific. will resolve this.
 spatial_occ=model_params{3};
 firingrates=model_params{4};
+no_of_intervals=numel(intervals(:,1));
 
-while(time<=endpoint)
-    
+final_out={};
+per_out=[];
+prob_out={};
 
-
-prob_dist=zeros(gridmax_x,gridmax_y);
-for x=1:gridmax_x
-    for y=1:gridmax_y
-        prob_dist(x,y)=spatial_occ(x,y);
-        temp=1;
-        temp2=0;
-        for tt=1:neurons
-            start_spike=findnearest(time-round(window/2),spikes{tt});
-            start_spike=start_spike(1);
-            end_spike=findnearest(time+round(window/2),spikes{tt});
-            end_spike=end_spike(1);
-            temp=temp*power(firingrates{tt}(x,y),end_spike-start_spike+1);
-            temp2=temp2+firingrates{tt}(x,y);
+for intr=1:no_of_intervals
+    startpoint=intervals(intr,1);
+    endpoint=intervals(intr,2);
+    time=startpoint;
+    per_out=[];
+    prob_out={};
+    count=1;
+    interval_out={};
+    while(time<=endpoint)  
+        % ---------------- Algorithm implementation---------------%
+        prob_dist=zeros(gridmax_x,gridmax_y);
+        for x=1:gridmax_x  %-----------------update ever cell in distribution matrix----%
+            for y=1:gridmax_y
+                prob_dist(x,y)=spatial_occ(x,y);
+                temp=1;
+                temp2=0;
+                for tt=1:neurons
+                    start_spike=findnearest(time-round(window/2),spikes{tt});
+                    start_spike=start_spike(1);
+                    end_spike=findnearest(time+round(window/2),spikes{tt});
+                    end_spike=end_spike(1);
+                    temp=temp*power(firingrates{tt}(x,y),end_spike-start_spike+1);
+                    temp2=temp2+firingrates{tt}(x,y);
+                end
+                temp2=temp2*-window;
+                temp2=exp(temp2);
+                prob_dist(x,y)=prob_dist(x,y)*temp*temp2;
+            end
+            %fprintf('%d/%d\n',x,gridmax_x);  %display any debug messages, for ever cell calc
         end
-        temp2=temp2*-window;
-        temp2=exp(temp2);
-        prob_dist(x,y)=prob_dist(x,y)*temp*temp2;
-    end
-    %fprintf('%d/%d\n',x,gridmax_x);
-end
 
-for looptemp=1:1
-jump=0;
-for x=1:gridmax_x
-    for y=1:gridmax_y
-        if(prob_dist(x,y)==max(max(prob_dist)))
-            jump=1;
-        end
-        if(jump==1)
-            break;
-        end
+        [estx,esty]=ind2sub(size(prob_dist),findnearest(max(max(prob_dist)),prob_dist));
+        fprintf('Estimated (x,y) : (%d,%d)\n',estx,esty);
+        per_out=[per_out; time,estx,esty];
+        prob_out{count}=prob_dist;
+        time=time+timestep;
+        count=count+1;
     end
-    if(jump==1)
-        break;
-    end
-end
- fprintf('Estimated (x,y) #%d: (%d,%d)\n',looptemp,x,y);
+    interval_out={per_out prob_out};
+    final_out{intr}=interval_out;
 end
 
 
@@ -128,12 +130,11 @@ truey=truey(1);
 truex=position_data(truex,2);
 truey=position_data(truey,3);
 % fprintf('True Pos  (x,y) : (%d,%d)\n',truex,truey);
-estpos=[estpos;x,y,truex,truey];
+estpos=[estpos;estx,esty,truex,truey];
    
 time=time+timestep;
 end
             
         
 
-end
 

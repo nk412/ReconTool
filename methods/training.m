@@ -63,6 +63,9 @@ max_x=max(position_data(:,2));  % get max X value
 max_y=max(position_data(:,3));  % get max Y value
 n_grid=binsize_grid(1);       % horizontal divisions, n
 m_grid=binsize_grid(2);       % vertical divisions, m
+if(n_grid<4 || m_grid<4)
+    error('Minimum grid size should be 4x4'); % minimum 4x4
+end
 m_grid=max_x/m_grid;            % bin width
 n_grid=max_y/n_grid;            % bin height
 
@@ -155,6 +158,7 @@ for x=1:neurons
     fprintf('Neuron %d complete\n',x);
 end
 
+% Calculates firing rates from occupancy matrix -------------------------
 for n=1:neurons
     for x=1:gridmax_x
         for y=1:gridmax_y
