@@ -175,6 +175,6 @@ params=[neurons; gridmax_x; gridmax_y; del_t];
 %params=[neurons; binsize_grid; startpoint; endpoint; gridmax_x; gridmax_y];
 
 %model_params={params occupancy_matrix spatial_occ firingrates};
-model_params={params binsize_grid spatial_occ firingrates intervals};
+model_params={params binsize_grid spatial_occ firingrates intervals occupancy_matrix};
 end
 

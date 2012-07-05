@@ -41,6 +41,7 @@ function [ final_out ] = reconstruction( position_data, spikes, model_params, in
 %   the true position (x and y) of the animal, as fetched from
 %   position_data.
 
+
 if(nargin<4)
     error('Argumements : Position data, spikes, model parameters, start point in time, end point, (time window)');
 elseif(nargin<5)
@@ -48,7 +49,7 @@ elseif(nargin<5)
 end
 
 
-%------------Discretizing Position data into bins------------%
+%------------Discretizing Position_data into bins------------%
 binsize_grid=model_params{2};
 max_x=max(position_data(:,2));  % get max X value
 max_y=max(position_data(:,3));  % get max Y value
@@ -56,13 +57,14 @@ n_grid=binsize_grid(1);       % horizontal divisions, n
 m_grid=binsize_grid(2);       % vertical divisions, m
 m_grid=max_x/m_grid;            % bin width
 n_grid=max_y/n_grid;            % bin height
-
 for x=1:numel(position_data(:,1))
     position_data(x,2)=round(position_data(x,2)/m_grid) ;
     position_data(x,3)=round(position_data(x,3)/n_grid);
 end
 max_x=max(position_data(:,2));
 max_y=max(position_data(:,3));
+%------------------------------------------------------------%
+
 
 
 %----------------variable initialization---------------------%
@@ -79,6 +81,11 @@ no_of_intervals=numel(intervals(:,1));
 final_out={};
 per_out=[];
 prob_out={};
+%------------------------------------------------------------%
+
+
+
+
 
 for intr=1:no_of_intervals
     startpoint=intervals(intr,1);
@@ -89,32 +96,26 @@ for intr=1:no_of_intervals
     count=1;
     interval_out={};
     while(time<=endpoint)  
-        % ---------------- Algorithm implementation---------------%
-        prob_dist=zeros(gridmax_x,gridmax_y);
-        for x=1:gridmax_x  %-----------------update ever cell in distribution matrix----%
-            for y=1:gridmax_y
-                prob_dist(x,y)=spatial_occ(x,y);
-                temp=1;
-                temp2=0;
-                for tt=1:neurons
-                    start_spike=findnearest(time-round(window/2),spikes{tt});
-                    start_spike=start_spike(1);
-                    end_spike=findnearest(time+round(window/2),spikes{tt});
-                    end_spike=end_spike(1);
-                    temp=temp*power(firingrates{tt}(x,y),end_spike-start_spike+1);
-                    temp2=temp2+firingrates{tt}(x,y);
-                end
-                temp2=temp2*-window;
-                temp2=exp(temp2);
-                prob_dist(x,y)=prob_dist(x,y)*temp*temp2;
-            end
-            %fprintf('%d/%d\n',x,gridmax_x);  %display any debug messages, for ever cell calc
-        end
 
-        [estx,esty]=ind2sub(size(prob_dist),findnearest(max(max(prob_dist)),prob_dist));
-        fprintf('Estimated (x,y) : (%d,%d)\n',estx,esty);
+
+
+        % ---------------- Algorithm implementation---------------%
+        prob_dist= algorithm( time, gridmax_x,gridmax_y,neurons,spikes,firingrates,spatial_occ, window);
+        %=----------------Algorithm Implementation ends--------------%
+
+
+
+
+        %-----------------------Calculate Estimated X and Y -----------------%
+        tempx=findnearest(max(max(prob_dist)),prob_dist);
+        [estx,esty]=ind2sub(size(prob_dist),tempx(1));
+        %fprintf('Estimated (x,y) : (%d,%d)\n',estx,esty);
+        fprintf('Completed: %f %%\n',((time-startpoint)/(endpoint-startpoint))*100);
         per_out=[per_out; time,estx,esty];
         prob_out{count}=prob_dist;
+        %-----------------------Calculate Estimated X and Y -----------------%
+
+
         time=time+timestep;
         count=count+1;
     end
@@ -123,18 +124,6 @@ for intr=1:no_of_intervals
 end
 
 
-truex=findnearest(time,position_data(:,1));
-truey=findnearest(time,position_data(:,1));
-truex=truex(1);
-truey=truey(1);
-truex=position_data(truex,2);
-truey=position_data(truey,3);
-% fprintf('True Pos  (x,y) : (%d,%d)\n',truex,truey);
-estpos=[estpos;estx,esty,truex,truey];
-   
-time=time+timestep;
 end
             
         
-
-
