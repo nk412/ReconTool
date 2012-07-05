@@ -1,53 +1,39 @@
 function [ model_params ] = traindata( position_data, spikes, binsize_grid, intervals )
-%TRAINDATA Summary of this function goes here
-%  traindata() builds a model from the given dataset with the specified
-%  constraints
+%  traindata(position_data, spikes, binsize_grid, intervals)
+% Trains the model on given position data and spiking activity of an neural
+% ensemble. The grid size for discretization is also specified. Optionally,
+% intervals within which training should be carried out can also be specified.
 %
-%  Inputs -
+% Inputs -
+% position_data - Positional data in the form of a Tx3 matrix, where T is the
+%                 number of timesteps. The three columns correspond to timestep,
+%                 X coordinate at T and Y coordinate at T respectively.
+% spikes        - A cell array containing N vectors, where N is the number of
+%                 neurons. Each vector contains timestamps at which the neuron
+%                 fired.
 %
-%  position_data - a vector which specifies the time, and the x and y 
-%  co-ordinates of the animal. Time stamps are expected in 1/10000 second
-%  units, and co-ordinates are in centimeters.
+% Optional Inputs-
+% binsize_grid  - [M,N] - Is a vector containing two values, M and N, and is used
+%                 break discretize the data into an MxN grid. By default, a
+%                 64x64 bin density is used.
+% intervals     - This is a Ix2 matrix, where I is the number of intervals.
+%                 The model will be trained only on data falling within these 
+%                 intervals. At every interval specified, the first column 
+%                 represents the start timestamp, and the second columnt 
+%                 indicates the end timestamp for the interval. By default,
+%                 A single interval that encompasses all given data is used.
 %
-%  spikes - a cell array consisting of N vectors, where N is the number of
-%  neurons. Each vector consists of time stamps corresponding to when the
-%  respective neuron fired. Units of time are in 1/10000th of a second.
-%
-%  binsize_grid - (OPTIONAL) Specifies the size of the bin, in centimeters.
-%  By default, the bin size is 1cm.
-%
-%  startpoint - (OPTIONAL) Specifies the timestamp beginning from which the
-%  model will be built. By default, the first point in position_data will
-%  be used.
-%
-%  endpoint - (OPTIONAL) Specifies the timestamp UP TO which the model will
-%  be built. By default, the last point in position_data will be used.
-%
-%  Outputs-
-%
-%  model_params - This is a cell array that contains vectors of calculated
-%  parameters such as firing rates and spatial occupancy. The cell array
-%  contains four cells as described below.
-%  
-%  i. General parameters - The first vector contains general information about the model, that
-%  can be used by the reconstruction method. The parameters contained in
-%  this vector are ( number of neurons, binsize_grid, startpoint, endpoint, gridmax_x,
-%  gridmax_y). The 'gridmax' variables are used to contain the size of the
-%  grid after spatial binning.
-%
-%  ii. Occupancy matrix - The second cell is the occupancy matrix of the data. The address of
-%  each cell can be considered to be the co-ordinates, for simplified
-%  calculations. Each cell contains the number of times the animal was
-%  found in the given data.
-%
-%  iii. Spatial Occupancy - This matrix contains the spatial occupancy of
-%  different locations on the grid. Each cell contains a probability of
-%  finding the animal in that location, as per the binning criteria given.
-%
-%  iv. Firing rates- The third cell is a cell array that consists of N
-%  matrices, where N is the number of neurons given in the data. For each
-%  neuron, each cell contains the firing rate of the cell from the given
-%  data.
+% Outputs-
+% model_params  - Model_params contains parameters built from the given data.
+%                 It is in the form of a cell array, that contains the following
+%                 general elements : number of neurons, grid size X, grid size Y.
+%                 It also contains occupancy matrix and firing rates for the 
+%                 individual neurons. The intervals between which it was trained
+%                 is also contained in model_params. The model_params cell array
+%                 encapsulates all information that would be required for
+%                 reconstruction by any algorithm.
+
+
 
 if(nargin<2)
     error('Need atleast position data and spiking information');

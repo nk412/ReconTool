@@ -1,5 +1,15 @@
 function [ prob_dist ] = algorithm( time, gridmax_x,gridmax_y,neurons,spikes,firingrates,spatial_occ, window)
 %function algorithm(time,gridmax_x, gridmax_y, neurons, spikes, firingrates, spatial_occ, window)
+% Function not meant to be called independently. Contains the core
+% reconstruction alogrithm. Takes all required data such as firing
+% rates and spiking data, along with other algorithm specific
+% information such as time window and grid size, and uses them to
+% calculate a probability distribution of position.
+%
+% Output - prob_dist
+%
+% A matrix of size MxN, containing the probability distribution of expected position.
+% MxN is the grid size as specified during training.
 
 
 % prob_dist=zeros(gridmax_x,gridmax_y);
