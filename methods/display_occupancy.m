@@ -15,13 +15,13 @@ if(nargin<1)
     error('Call function with parameter model.');
 end
 if(nargin==1)
-    checker=0;
+    checker=1;
 end
 
 spatial_occupancy=model_params{3};
 map=rot90(spatial_occupancy);
 if(checker==1)
-    pcolor(map);
+    pcolor(flipud(map));
 else
     imagesc(map);
 end

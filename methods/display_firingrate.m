@@ -17,7 +17,7 @@ if(nargin<2)
 end
 
 if(nargin==2)
-    checker=0;
+    checker=1;
 end
 
 maxneurons=model_params{1}(1);
@@ -27,7 +27,7 @@ end
 firing_rates=model_params{4};
 map=rot90(firing_rates{neuron});
 if(checker==1)
-    pcolor(map);
+    pcolor(flipud(map));
 else
     imagesc(map);
 end
