@@ -101,7 +101,7 @@ for intr=1:no_of_intervals
 
 
         % ---------------- Algorithm implementation---------------%
-        prob_dist= algorithm( time, gridmax_x,gridmax_y,neurons,spikes,firingrates,spatial_occ, twindow);
+        prob_dist= algorithm( time, gridmax_x,gridmax_y,neurons,spikes,firingrates,spatial_occ, timestep,twindow);
         %=----------------Algorithm Implementation ends--------------%
 
 

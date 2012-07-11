@@ -144,7 +144,7 @@ for x=1:neurons
     fprintf('Neuron %d complete\n',x);
 end
 
-% Calculates firing rates from occupancy matrix -------------------------
+%Calculates firing rates from occupancy matrix -------------------------
 for n=1:neurons
     for x=1:gridmax_x
         for y=1:gridmax_y
