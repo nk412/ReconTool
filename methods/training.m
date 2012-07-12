@@ -78,6 +78,10 @@ for tempx=2:numel(posdata(:,1))
 end
 del_t=round(mean(tempy));
 
+%===============CONVERT del_t INTO UNIT SECONDS===========%
+%del_t=del_t/10000;
+
+
 
 gridmax_x=max_x;
 gridmax_y=max_y;
