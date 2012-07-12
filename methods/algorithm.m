@@ -15,37 +15,47 @@ function [ prob_dist ] = algorithm( time, gridmax_x,gridmax_y,neurons,spikes,fir
 %     firingrates{tt}=firingrates{tt}.*100000;
 % end
 
+p1=round(time- twindow/2);
+p2=round(time+ twindow/2);
+            
 prob_dist=zeros(gridmax_x,gridmax_y);
 for x=1:gridmax_x
     for y=1:gridmax_y
-        prob_dist(x,y)=spatial_occ(x,y);
+        if(spatial_occ(x,y)==0)
+            continue;
+        else
+            prob_dist(x,y)=spatial_occ(x,y);
+        end
+
         temp=1;
         temp2=0;
         for tt=1:neurons
-            % start_spike=findnearest(time-round(twindow/2),spikes{tt},-1);
-            % start_spike=start_spike(1);
-            % end_spike=findnearest(time+round(twindow/2),spikes{tt},1);
-            % end_spike=end_spike(1);
-            p1=round(time- twindow/2);
-            p2=round(time+ twindow/2);
+            % if(firingrates{tt}(x,y)==0)
+            %     continue;
+            % end
             number_of_spikes=0;
+            
             for z=1:numel(spikes{tt})
                 if(spikes{tt}(z)>p1 && spikes{tt}(z)<p2)
                     number_of_spikes=number_of_spikes+1;
                 end
             end
-            temp=temp*timestep*power(firingrates{tt}(x,y),number_of_spikes);
-            temp=temp/factorial(number_of_spikes);
+
+            
+            temp=temp*power(firingrates{tt}(x,y),number_of_spikes);
+            %temp=temp*timestep*power(firingrates{tt}(x,y),number_of_spikes);
+            %temp=temp/factorial(number_of_spikes);
+            
+            
             temp2=temp2+firingrates{tt}(x,y);
         end
         temp2=temp2*-twindow;
         temp2=exp(temp2);
-        %temp=temp+0.000001;
-        %temp2=temp2+0.000000001;
+        
         prob_dist(x,y)=spatial_occ(x,y)*temp*temp2;
+
         %prob_dist(x,y)=firingrates{1}(x,y);
     end
-    x
     %fprintf('%d/%d\n',x,gridmax_x);  %display any debug messages, for ever cell calc
 end
 
