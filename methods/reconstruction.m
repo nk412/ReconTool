@@ -74,7 +74,7 @@ twindow=twindow*10000; %unit conversion from seconds to 1/10000th of a second
 neurons=model_params{1}(1);
 gridmax_x=model_params{1}(2);
 gridmax_y=model_params{1}(3);
-timestep=model_params{1}(4); % Timestep, unit conversion to 1/10000th of a second
+timestep=model_params{1}(4); % Timestep, algorithm specific. will resolve this.
 spatial_occ=model_params{3};
 firingrates=model_params{4};
 no_of_intervals=numel(intervals(:,1));
@@ -117,7 +117,7 @@ for intr=1:no_of_intervals
         %-----------------------Calculate Estimated X and Y -----------------%
 
 
-        time=time+(timestep);
+        time=time+timestep;
         count=count+1;
     end
     interval_out={per_out prob_out};

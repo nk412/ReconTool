@@ -14,9 +14,6 @@ function [ prob_dist ] = algorithm( time, gridmax_x,gridmax_y,neurons,spikes,fir
 % for tt=1:neurons
 %     firingrates{tt}=firingrates{tt}.*100000;
 % end
-tic
-p1=(time - twindow/2); %time window [
-p2=(time + twindow/2); %time window ]
 
 prob_dist=zeros(gridmax_x,gridmax_y);
 for x=1:gridmax_x
@@ -29,25 +26,16 @@ for x=1:gridmax_x
             % start_spike=start_spike(1);
             % end_spike=findnearest(time+round(twindow/2),spikes{tt},1);
             % end_spike=end_spike(1);
-<<<<<<< HEAD
             p1=round(time- twindow/2);
             p2=round(time+ twindow/2);
-=======
-            % number_of_spikes=end_spike-start_spike;
->>>>>>> Oh noes!
             number_of_spikes=0;
             for z=1:numel(spikes{tt})
                 if(spikes{tt}(z)>p1 && spikes{tt}(z)<p2)
                     number_of_spikes=number_of_spikes+1;
                 end
             end
-<<<<<<< HEAD
             temp=temp*timestep*power(firingrates{tt}(x,y),number_of_spikes);
             temp=temp/factorial(number_of_spikes);
-=======
-            temp=temp*power(firingrates{tt}(x,y),number_of_spikes);
-            %temp=temp/factorial(number_of_spikes);
->>>>>>> Oh noes!
             temp2=temp2+firingrates{tt}(x,y);
         end
         temp2=temp2*-twindow;
@@ -60,7 +48,6 @@ for x=1:gridmax_x
     x
     %fprintf('%d/%d\n',x,gridmax_x);  %display any debug messages, for ever cell calc
 end
-toc
 
 end
 
