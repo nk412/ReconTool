@@ -28,20 +28,27 @@ for x=1:gridmax_x
         end
 
         temp=1;
+        
         temp2=0;
         for tt=1:neurons
-            % if(firingrates{tt}(x,y)==0)
-            %     continue;
-            % end
             number_of_spikes=0;
-            
-            for z=1:numel(spikes{tt})
-                if(spikes{tt}(z)>p1 && spikes{tt}(z)<p2)
-                    number_of_spikes=number_of_spikes+1;
+            closestp1=findnearest(p1,spikes{tt},-1);
+            closestp2=findnearest(p2,spikes{tt},1);
+
+            if(numel(closestp2)==0 || numel(closestp1)==0)
+                for z=1:numel(spikes{tt})
+                    if(spikes{tt}(z)>p1 && spikes{tt}(z)<p2)
+                        number_of_spikes=number_of_spikes+1;
+                    elseif(spikes{tt}(z)>p2)
+                        break;
+                    end      
                 end
+            else
+                number_of_spikes=closestp2-closestp1-1;
             end
 
-            
+
+
             temp=temp*power(firingrates{tt}(x,y),number_of_spikes);
             %temp=temp*timestep*power(firingrates{tt}(x,y),number_of_spikes);
             %temp=temp/factorial(number_of_spikes);
@@ -51,13 +58,19 @@ for x=1:gridmax_x
         end
         temp2=temp2*-twindow;
         temp2=exp(temp2);
-        
+
+
+
         prob_dist(x,y)=spatial_occ(x,y)*temp*temp2;
 
         %prob_dist(x,y)=firingrates{1}(x,y);
     end
     %fprintf('%d/%d\n',x,gridmax_x);  %display any debug messages, for ever cell calc
 end
-
+total_sum=sum(sum(prob_dist));
+if(total_sum~=0)
+    normalization_constant=1/total_sum;
+    prob_dist=prob_dist.*normalization_constant;
+end
 end
 
