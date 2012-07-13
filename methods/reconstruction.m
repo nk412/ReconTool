@@ -114,6 +114,7 @@ for intr=1:no_of_intervals
 
         %-----------------------Calculate Estimated X and Y -----------------%
         tempx=findnearest(max(max(prob_dist)),prob_dist);
+        prob_dist
         [estx,esty]=ind2sub(size(prob_dist),tempx(1));
         %fprintf('Estimated (x,y) : (%d,%d)\n',estx,esty);
         fprintf('Completed: %f %%\n',((time-startpoint)/(endpoint-startpoint))*100);

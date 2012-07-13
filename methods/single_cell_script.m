@@ -2,7 +2,7 @@ tic
 
 
 %------SINGLE POINT---------------------
-%post_recon=reconstruction(pos,hpc,params,[31577213,31577215],timewindow);
+post_recon=reconstruction(pos,hpc,params,[31577213,31577215],timewindow);
 %post_recon=reconstruction(pos,hpc,params,[28394731,28394733],timewindow);
 
 
@@ -12,7 +12,7 @@ tic
 
 %--------SMALL TRAIL-----------------------------
 %post_recon=reconstruction(pos,hpc,params,[30790000,30850000],timewindow);
-post_recon=reconstruction(pos,hpc,params,[30790000,30820000],timewindow);
+%post_recon=reconstruction(pos,hpc,params,[28480000,28500000],timewindow);
 
 toc
 err=recon_error(pos,post_recon,params);

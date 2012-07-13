@@ -70,6 +70,9 @@ end
 total_sum=sum(sum(prob_dist));
 if(total_sum~=0)
     normalization_constant=1/total_sum;
+    if(normalization_constant==Inf)
+        normalization_constant=1;
+    end
     prob_dist=prob_dist.*normalization_constant;
 end
 end
