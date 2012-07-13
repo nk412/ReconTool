@@ -19,8 +19,8 @@ p1=round(time- twindow/2);
 p2=round(time+ twindow/2);
             
 prob_dist=zeros(gridmax_x,gridmax_y);
-for x=1:gridmax_x
-    for y=1:gridmax_y
+for y=1:gridmax_y
+    for x=1:gridmax_x
         if(spatial_occ(x,y)==0)
             continue;
         else
