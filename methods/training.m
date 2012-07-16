@@ -1,5 +1,5 @@
-function [ model_params ] = traindata( position_data, spikes, binsize_grid, intervals )
-%  traindata(position_data, spikes, binsize_grid, intervals)
+function [ model_params ] = training( position_data, spikes, binsize_grid, intervals )
+% [model_params] = training(position_data, spikes, binsize_grid, intervals)
 % Trains the model on given position data and spiking activity of an neural
 % ensemble. The grid size for discretization is also specified. Optionally,
 % intervals within which training should be carried out can also be specified.
@@ -7,14 +7,14 @@ function [ model_params ] = traindata( position_data, spikes, binsize_grid, inte
 % Inputs -
 % position_data - Positional data in the form of a Tx3 matrix, where T is the
 %                 number of timesteps. The three columns correspond to timestep,
-%                 X coordinate at T and Y coordinate at T respectively.
+%                 X coordinate, and the Y coordinate at the timestep respectively.
 % spikes        - A cell array containing N vectors, where N is the number of
 %                 neurons. Each vector contains timestamps at which the neuron
 %                 fired.
 %
 % Optional Inputs-
 % binsize_grid  - [M,N] - Is a vector containing two values, M and N, and is used
-%                 break discretize the data into an MxN grid. By default, a
+%                 to discretize the data into an MxN grid. By default, a
 %                 64x64 bin density is used.
 % intervals     - This is a Ix2 matrix, where I is the number of intervals.
 %                 The model will be trained only on data falling within these 

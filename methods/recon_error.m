@@ -1,5 +1,5 @@
-function [ rec_err ] = recon_error( position_data, post_recon_data, model_params )
-% recon_error(position_data, post_recon_data, model_params)
+function [ rec_err ] = recon_error( position_data, reconstructed_trajectory, model_params )
+% [rec_err] = recon_error(position_data, reconstructed_trajectory, model_params)
 %
 % This function compares the estimated position returned by the
 % reconstruction method with the true position of the animal.
@@ -8,7 +8,7 @@ function [ rec_err ] = recon_error( position_data, post_recon_data, model_params
 % position_data - Positional data in the form of a Tx3 matrix, where T is the
 %                 number of timesteps. The three columns correspond to timestep,
 %                 X coordinate at T and Y coordinate at T respectively.
-% post_recon_data - A cell array containing I cells, where I is the number of 
+% reconstructed_trajectory - A cell array containing I cells, where I is the number of 
 % 					reconstructed intervals. Each cell contains a matrix denoting
 % 					the estimated positions and a cell array containing the
 % 					probability distributions of the animals estimated location,
@@ -50,13 +50,13 @@ end
 
 
 %------------------Error calculation---------------------------%
-intervals=numel(post_recon_data);
+intervals=numel(reconstructed_trajectory);
 
 rec_err={};
 for intr=1:intervals
 	out_intervals=[];
-	timesteps=numel(post_recon_data{intr}{1}(:,1));
-	interval_data=post_recon_data{intr}{1};
+	timesteps=numel(reconstructed_trajectory{intr}(:,1));
+	interval_data=reconstructed_trajectory{intr};
 	for each_time=1:timesteps
 		true_time_index=findnearest(interval_data(each_time,1),position_data);
 		true_x = position_data(true_time_index,2);
