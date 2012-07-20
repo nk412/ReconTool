@@ -1,4 +1,4 @@
-function [ prob_dist ] = algorithm( time, gridmax_x,gridmax_y,neurons,spikes,firingrates,spatial_occ, timestep, time_window, compression_factor, count, per_out)
+function [ prob_dist, first_spike, last_spike ] = algorithm( time, gridmax_x,gridmax_y,neurons,spikes,firingrates, vel1, spatial_occ, timestep, time_window, compression_factor, count, per_out, first_spike, last_spike)
 %function algorithm(time,gridmax_x, gridmax_y, neurons, spikes, firingrates, spatial_occ, window)
 % Function not meant to be called independently. Contains the core
 % reconstruction alogrithm. Takes all required data such as firing
@@ -39,19 +39,49 @@ for y=1:gridmax_y
         temp2=0;
         for tt=1:neurons
             number_of_spikes=0;
-            closestp1=findnearest(p1,spikes{tt},-1);
-            closestp2=findnearest(p2,spikes{tt},1);
-            if(numel(closestp2)==0 || numel(closestp1)==0)
-                for z=1:numel(spikes{tt})
-                    if(spikes{tt}(z)>p1 && spikes{tt}(z)<p2)
-                        number_of_spikes=number_of_spikes+1;
-                    elseif(spikes{tt}(z)>p2)
-                        break;
-                    end      
-                end
-            else
-                number_of_spikes=closestp2-closestp1-1;
+
+            while(spikes{tt}(first_spike(tt)+1)<p1)
+                first_spike(tt)=first_spike(tt)+1;
             end
+
+            while(spikes{tt}(last_spike(tt))<p2)
+                last_spike(tt)=last_spike(tt)+1;
+            end
+
+
+
+            % closestp1=findnearest(p1,spikes{tt},-1);
+            % closestp2=findnearest(p2,spikes{tt},1);
+            
+            % if(numel(closestp1)==0)
+            %     closestp1=0;
+            % end
+            % if(numel(closestp2)==0)
+            %     closestp2= findnearest(p2,spikes{tt},-1);
+            %     if(numel(closestp2)==0)
+            %         closestp2=0;
+            %     end
+            %     closestp2=closestp2+1;
+            % end
+
+            % number_of_spikes=closestp2-closestp1-1;
+
+
+
+            number_of_spikes=last_spike(tt)-first_spike(tt)-1;
+
+
+            % if(numel(closestp2)==0 || numel(closestp1)==0)
+            %     for z=1:numel(spikes{tt})
+            %         if(spikes{tt}(z)>p1 && spikes{tt}(z)<p2)
+            %             number_of_spikes=number_of_spikes+1;
+            %         elseif(spikes{tt}(z)>p2)
+            %             break;
+            %         end      
+            %     end
+            % else
+            %     number_of_spikes=closestp2-closestp1-1;
+            % end
 
             temp=temp*power(firingrates{tt}(x,y),number_of_spikes);
             %temp=temp*timestep*power(firingrates{tt}(x,y),number_of_spikes);
@@ -68,7 +98,8 @@ for y=1:gridmax_y
 
 
     %----------CORRECTION STEP---------%
-        velocity_constant=50;  % resolve this.        
+        %velocity_constant=50+(    (900/vel1(x,y)) /10);%/50;  % resolve this.
+        velocity_constant=300/vel1(x,y);        
         if(count~=1)
             estx_prev=per_out(count-1,2);
             esty_prev=per_out(count-1,3);

@@ -9,6 +9,7 @@ tic
 %-------LONG TRAIL-------------------------------
 %post_recon=reconstruction(pos,hpc,params,[30703849,30907914],timewindow);
 [traj,prob]=reconstruction(hpc,params,[30300000,31100000]);
+% [traj,prob]=reconstruction(hpc,params,[30400000,30800000]);
 
 
 %----full run----
@@ -23,5 +24,7 @@ tic
 toc
 err=recon_error(pos,traj,params);
 interval_one=err{1};
+sum(interval_one(:,6))
+
 %display_plots;
 beep;

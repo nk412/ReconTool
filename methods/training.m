@@ -1,5 +1,7 @@
 function [ model_params ] = training( position_data, spikes, binsize_grid, intervals )
+%
 % [model_params] = training(position_data, spikes, binsize_grid, intervals)
+%
 % Trains the model on given position data and spiking activity of an neural
 % ensemble. The grid size for discretization is also specified. Optionally,
 % intervals within which training should be carried out can also be specified.
@@ -65,10 +67,11 @@ max_y=max(position_data(:,3));
 posdata=[];
 for tempx=1:numel(intervals(:,1))
     startpoint=findnearest(intervals(tempx,1),position_data(:,1));
+    startpoint=startpoint(1);
     endpoint=findnearest(intervals(tempx,2),position_data(:,1));
+    endpoint=endpoint(1);   
     posdata=[posdata;position_data(startpoint:endpoint,:)];
 end
-
 
 ignore_orig=1;  % Set to 1, to ignore all (0,0) points
 
@@ -82,10 +85,47 @@ del_t=round(mean(tempy));
 gridmax_x=max_x;
 gridmax_y=max_y;
 
+%=================VELOCITY AT EVERY GRID CELL=========%
+vel1=zeros(gridmax_x,gridmax_y);
+vel2=zeros(gridmax_x,gridmax_y);
+changed=0;
+previous_x=position_data(1,2);
+previous_y=position_data(1,3);
+for x=1:numel(position_data(:,1))
+    current_x=position_data(x,2);
+    current_y=position_data(x,3);
+    if(current_x==0)
+        current_x=1;
+    end
+    if(current_y==0)
+        current_y=1;
+    end
+    if(current_y==previous_y && current_x==previous_x)
+        vel2(current_x,current_y)=vel2(current_x,current_y)+1;
+    else
+        if(vel2(current_x,current_y)>vel1(current_x,current_y))
+            vel1(current_x,current_y)=vel2(current_x,current_y);
+            vel2(current_x,current_y)=0;
+        end
+    previous_x=current_x;
+    previous_y=current_y;
+    end
+end
+
+
+
+
+        
+
+
+
+
+
 %=============== SPATIAL OCCUPANCY ===================%
 fprintf('Calculating Spatial Occupancy...\n');
+numel(posdata(:,1))
 spatial_occ=zeros(gridmax_x,gridmax_y);
-for x=1:size(posdata)
+for x=1:numel(posdata(:,1))
     xx=posdata(x,2);
     yy=posdata(x,3);
     if(ignore_orig==1)
@@ -108,7 +148,7 @@ occupancy_matrix=spatial_occ;
 spatial_occ=spatial_occ./total_positions;
 
 %================== FIRING RATES ====================%
-fprintf('Calculating Firing rates...\n');
+waitb=waitbar(0,'Calculating Firing Rates...');
 
 neurons=size(spikes);
 neurons=neurons(2);
@@ -141,7 +181,8 @@ for x=1:neurons
         frate(xx,yy)=frate(xx,yy)+1;
     end
     firingrates=[firingrates {frate}];
-    fprintf('Neuron %d complete\n',x);
+    %fprintf('Neuron %d complete\n',x);
+    waitbar(x/neurons,waitb,sprintf('Calculating firing rates... Cell %d/%d',x,neurons));
 end
 
 %Calculates firing rates from occupancy matrix -------------------------
@@ -154,13 +195,13 @@ for n=1:neurons
         end
     end
 end
-
+close(waitb);
 
 
 params=[neurons; gridmax_x; gridmax_y; del_t];
 %params=[neurons; binsize_grid; startpoint; endpoint; gridmax_x; gridmax_y];
 
 %model_params={params occupancy_matrix spatial_occ firingrates};
-model_params={params binsize_grid spatial_occ firingrates intervals occupancy_matrix};
+model_params={params binsize_grid spatial_occ firingrates intervals occupancy_matrix vel1};
 end
 
